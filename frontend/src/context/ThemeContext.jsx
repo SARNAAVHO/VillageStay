@@ -14,14 +14,14 @@ const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(getInitialTheme);
 
   useLayoutEffect(() => {
-    const root = document.documentElement;
+    const root = window.document.documentElement;
     root.classList.remove("light", "dark");
     root.classList.add(theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+    setTheme(prev => (prev === "dark" ? "light" : "dark"));
   };
 
   return (

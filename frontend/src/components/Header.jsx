@@ -30,13 +30,13 @@ const Header = () => {
 
   // Base and active classes
   const linkBase =
-    "text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-600 hover:scale-110 transition-all";
+    "text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-600 hover:scale-110 transition-all border px-3 py-2 rounded-full align-middle";
   const activeLink =
     "text-green-600 dark:text-green-400 font-semibold scale-110";
 
   return (
     <header
-      className={`w-full px-6 md:px-14 py-4 shadow-md bg-white dark:bg-gray-900 sticky top-0 z-50 transition-transform duration-300 ${
+      className={`w-full px-6 md:px-14 py-4 bg-transparent sticky top-0 z-50 transition-transform duration-300 ${
         hidden ? "-translate-y-full" : "translate-y-0"
       }`}
     >
@@ -51,7 +51,7 @@ const Header = () => {
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex">
-          <div className="mt-2 space-x-16 items-center text-md mr-72">
+          <div className="mt-2 space-x-16 items-center text-md mr-64">
           <a
             href="/"
             className={`${linkBase} ${
@@ -94,7 +94,7 @@ const Header = () => {
             <UserButton afterSignOutUrl="/" />
           ) : (
             <SignInButton mode="modal">
-              <Button className="bg-green-600 hover:bg-green-700 rounded-sm text-md">Sign In</Button>
+              <Button className="bg-green-600 hover:bg-green-700 rounded-full text-md text-white shadow-lg">Sign In</Button>
             </SignInButton>
           )}
         </div>
@@ -149,7 +149,7 @@ const Header = () => {
                   <UserButton afterSignOutUrl="/" />
                 ) : (
                   <SignInButton mode="modal">
-                    <Button variant="outline" className="rounded-md">
+                    <Button variant="outline" className="bg-green-600 hover:bg-green-700 rounded-full text-md text-white shadow-lg">
                       Sign In
                     </Button>
                   </SignInButton>
