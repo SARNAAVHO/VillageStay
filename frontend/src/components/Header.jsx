@@ -32,7 +32,7 @@ const Header = () => {
   const linkBase =
     "text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-600 hover:scale-110 transition-all border px-3 py-2 rounded-full align-middle";
   const activeLink =
-    "text-green-600 dark:text-green-400 font-semibold scale-110 border-green-600";
+    "text-green-600 dark:text-green-400 font-semibold scale-110 border-green-600 border-2";
 
   return (
     <header
