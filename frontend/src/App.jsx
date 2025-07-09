@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
 import About from "./pages/About"; // create this if needed
 import MainLayout from "./layouts/MainLayout";
-import BrowseStays from "./pages/BrowseStays";
+import BecomeHost from "./pages/BecomeHost";
 
 function App() {
   return (
@@ -13,7 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/about" element={<About />} />
-          <Route path="/browsestays" element={<BrowseStays />}/>
+          <Route path="/becomehost" element={<BecomeHost />}/>
         </Routes>
       </MainLayout>
     </Router>

@@ -36,7 +36,7 @@ const Header = () => {
 
   return (
     <header
-      className={`w-full px-6 md:px-14 py-4 bg-transparent sticky top-0 z-50 transition-transform duration-300 ${
+      className={`w-full px-6 md:px-10 py-5 bg-white dark:bg-gray-900 sticky top-0 z-50 transition-transform duration-300 ${
         hidden ? "-translate-y-full" : "translate-y-0"
       }`}
     >
@@ -69,12 +69,12 @@ const Header = () => {
             Contact
           </a> */}
           <a
-            href="/browsestays"
+            href="/becomehost"
             className={`${linkBase} ${
-              location.pathname === "/browsestays" ? activeLink : ""
+              location.pathname === "/becomehost" ? activeLink : ""
             }`}
           >
-            Browse Stays
+            Become a Host
           </a>
           <a
             href="/about"

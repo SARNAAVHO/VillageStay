@@ -51,7 +51,7 @@ function About() {
             {/* Team Member 1 */}
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 shadow-md flex flex-col items-center">
               <img
-                src="https://source.unsplash.com/200x200/?person,portrait"
+                src="/spal.jpg"
                 alt="Founder avatar"
                 className="w-28 h-28 rounded-full object-cover mb-4"
               />
@@ -62,7 +62,7 @@ function About() {
             {/* Team Member 2 */}
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 shadow-md flex flex-col items-center">
               <img
-                src="https://source.unsplash.com/200x200/?woman,developer"
+                src="/skhan.png"
                 alt="CTO avatar"
                 className="w-28 h-28 rounded-full object-cover mb-4"
               />
@@ -73,7 +73,7 @@ function About() {
             {/* Team Member 3 */}
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 shadow-md flex flex-col items-center">
               <img
-                src="https://source.unsplash.com/200x200/?traveler,photographer"
+                src="/sroy.png"
                 alt="CMO avatar"
                 className="w-28 h-28 rounded-full object-cover mb-4"
               />
@@ -91,7 +91,7 @@ function About() {
             Discover villages you never knew existed—and stories you'll never forget.
           </p>
           <Button
-            onClick={() => navigate("/browsestays")}
+            onClick={() => navigate("/becomehost")}
             className="bg-green-600 hover:bg-green-700 text-white rounded-full px-6 py-6 font-semibold text-base"
           >
             Explore Stays
