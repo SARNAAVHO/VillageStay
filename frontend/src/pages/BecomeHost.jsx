@@ -1,111 +1,88 @@
-import React, { useState } from "react";
-import { promoteUserToHost, createListing } from "@/services/api";
+import React, { useEffect, useState } from "react";
+import { useUser, SignInButton, useClerk } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
+import { promoteUserToHost, getUserById } from "@/services/api";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 function BecomeHost() {
-  const [step, setStep] = useState("email"); // email → form
-  const [email, setEmail] = useState("");
-  const [userId, setUserId] = useState(""); // store returned ID if needed
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    state: "",
-    district: "",
-    village: "",
-    max_guests: "",
-    base_price: "",
-    image: null,
-  });
+  const { user, isSignedIn } = useUser();
+  const { openSignIn } = useClerk();
+  const navigate = useNavigate();
 
-  const handleEmailSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // Generate a fake ID if you aren't using Clerk/Auth provider
-      const id = email.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-      setUserId(id);
+  const [loading, setLoading] = useState(true);
+  const [isHost, setIsHost] = useState(false);
 
-      await promoteUserToHost(id, "Host User", email);
-      setStep("form");
-    } catch (err) {
-      alert("Error promoting user: " + err.message);
+  useEffect(() => {
+    const checkOrPromoteUser = async () => {
+      if (!user) return;
+
+      try {
+        const dbUser = await getUserById(user.id);
+        if (dbUser?.is_host) {
+          setIsHost(true);
+        } else {
+          await promoteUserToHost(user.id, user.fullName || "Unknown", user.primaryEmailAddress?.emailAddress);
+          setIsHost(true);
+        }
+      } catch (err) {
+        console.error("Failed to check or promote user:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (isSignedIn) {
+      checkOrPromoteUser();
+    } else {
+      setLoading(false);
     }
-  };
+  }, [user, isSignedIn]);
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: files ? files[0] : value,
-    }));
-  };
+  if (loading) {
+    return (
+      <div className="min-h-[calc(100vh-160px)] flex items-center justify-center bg-white dark:bg-gray-900">
+        <Loader2 className="h-8 w-8 text-green-600 animate-spin" />
+      </div>
+    );
+  }
 
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    for (let key in form) formData.append(key, form[key]);
-    formData.append("host_id", userId);
-
-    try {
-      await createListing(formData);
-      alert("Listing created!");
-    } catch (err) {
-      alert("Error creating listing");
-    }
-  };
+  if (!isSignedIn) {
+    return (
+      <section className="min-h-[calc(100vh-160px)] flex items-center justify-center px-6 text-center bg-white dark:bg-gray-900">
+        <div className="max-w-xl space-y-6">
+          <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white">
+            Ready to become a host?
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 text-lg">
+            Earn income, share your culture, and welcome guests to your peaceful village home.
+          </p>
+          <SignInButton mode="modal">
+            <Button size="custom" className="bg-green-600 hover:bg-green-700 text-white text-lg px-6 py-3 rounded-full shadow-md">
+              Sign In to list your stay
+            </Button>
+          </SignInButton>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <div className="min-h-screen px-6 py-12 max-w-xl mx-auto">
-      <h1 className="text-4xl font-bold text-center mb-4">Become a Host</h1>
-      <p className="text-center text-gray-600 mb-8">
-        Share your home with travelers. Your peaceful stay can be someone’s next story!
-      </p>
-
-      {step === "email" && (
-        <form onSubmit={handleEmailSubmit} className="space-y-4">
-          <label className="block text-lg font-medium">Enter your email</label>
-          <input
-            type="email"
-            value={email}
-            required
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            className="w-full border px-4 py-2 rounded"
-          />
-          <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white">
-            Continue
-          </Button>
-        </form>
-      )}
-
-      {step === "form" && (
-        <form onSubmit={handleFormSubmit} className="space-y-4 text-left mt-6">
-          <div>
-            <label className="block font-medium mb-1">Title of Stay</label>
-            <input name="title" value={form.title} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">Description</label>
-            <textarea name="description" value={form.description} onChange={handleChange} rows={3} className="w-full border rounded px-3 py-2" required />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <input name="state" placeholder="State" value={form.state} onChange={handleChange} className="border rounded px-3 py-2" required />
-            <input name="district" placeholder="District" value={form.district} onChange={handleChange} className="border rounded px-3 py-2" required />
-            <input name="village" placeholder="Village" value={form.village} onChange={handleChange} className="border rounded px-3 py-2" required />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <input type="number" name="max_guests" placeholder="Max Guests" value={form.max_guests} onChange={handleChange} className="border rounded px-3 py-2" required />
-            <input type="number" name="base_price" placeholder="Price (₹ per night)" value={form.base_price} onChange={handleChange} className="border rounded px-3 py-2" required />
-          </div>
-          <div>
-            <label className="block font-medium mb-1">Upload Image</label>
-            <input type="file" name="image" accept="image/*" onChange={handleChange} />
-          </div>
-          <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white py-2">
-            Submit Listing
-          </Button>
-        </form>
-      )}
-    </div>
+    <section className="min-h-[calc(100vh-160px)] flex items-center justify-center px-6 bg-white dark:bg-gray-900">
+      <div className="max-w-2xl space-y-6 text-center">
+        <h2 className="text-4xl font-bold text-green-600">Welcome, Host!</h2>
+        <p className="text-lg text-gray-600 dark:text-gray-300">
+          You're now a verified host. Start listing your home and connect with travelers looking for authentic village experiences.
+        </p>
+        <Button
+          size="custom"
+          onClick={() => navigate("/CreateListings")}
+          className="bg-green-600 hover:bg-green-700 text-white text-lg px-6 py-3 rounded-full shadow-lg"
+        >
+          Create Your Listing
+        </Button>
+      </div>
+    </section>
   );
 }
 

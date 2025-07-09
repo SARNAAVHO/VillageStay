@@ -5,6 +5,8 @@ import Landing from "./pages/Landing";
 import About from "./pages/About"; // create this if needed
 import MainLayout from "./layouts/MainLayout";
 import BecomeHost from "./pages/BecomeHost";
+import CreateListing from "./pages/CreateListings";
+import YourListings from "./pages/YourListings";
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/about" element={<About />} />
           <Route path="/becomehost" element={<BecomeHost />}/>
+          <Route path="/CreateListings" element={<CreateListing/>} />
+          <Route path="/yourlistings" element={<YourListings />} />
         </Routes>
       </MainLayout>
     </Router>

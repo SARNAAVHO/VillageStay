@@ -4,9 +4,11 @@ from routes.listings import listings_bp
 from routes.reservations import reservations_bp
 from routes.locations import locations_bp
 from routes.listing_images import images_bp
+from flask_cors import CORS
 
 def create_app():
     app = Flask(__name__)
+    CORS(app)  # Enable CORS for all routes
 
     # Register each blueprint manually
     app.register_blueprint(users_bp)

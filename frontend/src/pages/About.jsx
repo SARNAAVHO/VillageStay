@@ -10,7 +10,7 @@ function About() {
       <div className="max-w-5xl mx-auto">
 
         {/* Title & Intro */}
-        <h1 className="text-4xl md:text-5xl font-extrabold mb-6 text-center text-green-500">
+        <h1 className="text-3xl md:text-4xl font-extrabold mb-6 text-center text-green-600">
           About VillageStay
         </h1>
 
@@ -67,7 +67,7 @@ function About() {
                 className="w-28 h-28 rounded-full object-cover mb-4"
               />
               <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Swastik Khan</h3>
-              <p className="text-green-500 dark:text-green-400">UI and Frontend Developer</p>
+              <p className="text-green-500 dark:text-green-400">Database Manager</p>
             </div>
 
             {/* Team Member 3 */}
@@ -91,7 +91,7 @@ function About() {
             Discover villages you never knew existed—and stories you'll never forget.
           </p>
           <Button
-            onClick={() => navigate("/becomehost")}
+            onClick={() => navigate("/")}
             className="bg-green-600 hover:bg-green-700 text-white rounded-full px-6 py-6 font-semibold text-base"
           >
             Explore Stays

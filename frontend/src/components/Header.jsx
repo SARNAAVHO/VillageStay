@@ -5,30 +5,39 @@ import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import { SignInButton, UserButton, useUser } from "@clerk/clerk-react";
+import { getUserById } from "@/services/api";
 
 const Header = () => {
   const location = useLocation();
   const [hidden, setHidden] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
-
   const { user } = useUser();
+  const [isHost, setIsHost] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       const currentY = window.scrollY;
-      if (currentY > lastScrollY && currentY > 50) {
-        setHidden(true);
-      } else {
-        setHidden(false);
-      }
+      setHidden(currentY > lastScrollY && currentY > 50);
       setLastScrollY(currentY);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  // Base and active classes
+  useEffect(() => {
+    const fetchHostStatus = async () => {
+      if (user) {
+        try {
+          const res = await getUserById(user.id);
+          setIsHost(res?.is_host || false);
+        } catch (err) {
+          console.error("Failed to fetch user host status", err);
+        }
+      }
+    };
+    fetchHostStatus();
+  }, [user]);
+
   const linkBase =
     "text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-600 hover:scale-110 transition-all border px-3 py-2 rounded-full align-middle";
   const activeLink =
@@ -52,55 +61,58 @@ const Header = () => {
         {/* Desktop Nav */}
         <nav className="hidden md:flex">
           <div className="mt-2 space-x-10 items-center text-md mr-64">
-          <a
-            href="/"
-            className={`${linkBase} ${
-              location.pathname === "/" ? activeLink : ""
-            }`}
-          >
-            Home
-          </a>
-          {/* <a
-            href="/contact"
-            className={`${linkBase} ${
-              location.pathname === "/contact" ? activeLink : ""
-            }`}
-          >
-            Contact
-          </a> */}
-          <a
-            href="/becomehost"
-            className={`${linkBase} ${
-              location.pathname === "/becomehost" ? activeLink : ""
-            }`}
-          >
-            Become a Host
-          </a>
-          <a
-            href="/about"
-            className={`${linkBase} ${
-              location.pathname === "/about" ? activeLink : ""
-            }`}
-          >
-            About
-          </a>
+            <a
+              href="/"
+              className={`${linkBase} ${
+                location.pathname === "/" ? activeLink : ""
+              }`}
+            >
+              Home
+            </a>
+
+            <a
+              href="/becomehost"
+              className={`${linkBase} ${
+                location.pathname === "/becomehost" ? activeLink : ""
+              }`}
+            >
+              Become a Host
+            </a>
+
+            {isHost && (
+              <a
+                href="/yourlistings"
+                className={`${linkBase} ${
+                  location.pathname === "/yourlistings" ? activeLink : ""
+                }`}
+              >
+                Your Listings
+              </a>
+            )}
+
+            <a
+              href="/about"
+              className={`${linkBase} ${
+                location.pathname === "/about" ? activeLink : ""
+              }`}
+            >
+              About
+            </a>
           </div>
 
           <div className="flex gap-6">
-
-          <ThemeToggle />
-
-          {user ? (
-            <UserButton afterSignOutUrl="/" />
-          ) : (
-            <SignInButton mode="modal">
-              <Button className="bg-green-600 hover:bg-green-700 rounded-full text-md text-white shadow-lg">Sign In</Button>
-            </SignInButton>
-          )}
-        </div>
+            <ThemeToggle />
+            {user ? (
+              <UserButton afterSignOutUrl="/" />
+            ) : (
+              <SignInButton mode="modal">
+                <Button className="bg-green-600 hover:bg-green-700 rounded-full text-md text-white shadow-lg">
+                  Sign In
+                </Button>
+              </SignInButton>
+            )}
+          </div>
         </nav>
-
-        
 
         {/* Mobile Nav */}
         <div className="md:hidden flex items-center gap-2">
@@ -135,6 +147,19 @@ const Header = () => {
                   Become a Host
                 </a>
 
+                {isHost && (
+                  <a
+                    href="/yourlistings"
+                    className={`text-lg ${
+                      location.pathname === "/yourlistings"
+                        ? "text-green-600 font-semibold"
+                        : "text-gray-800 dark:text-gray-100"
+                    }`}
+                  >
+                    Your Listings
+                  </a>
+                )}
+
                 <a
                   href="/about"
                   className={`text-lg ${
@@ -145,21 +170,22 @@ const Header = () => {
                 >
                   About
                 </a>
-                
 
-                {/* ✅ Sign In Button inside Sheet */}
                 {user ? (
                   <UserButton afterSignOutUrl="/" />
                 ) : (
                   <SignInButton mode="modal">
-                    <Button variant="outline" className="bg-green-600 hover:bg-green-700 rounded-full text-md text-white shadow-lg">
+                    <Button
+                      variant="outline"
+                      size="default"
+                      className="bg-green-600 hover:bg-green-700 rounded-full text-md text-white shadow-lg"
+                    >
                       Sign In
                     </Button>
                   </SignInButton>
                 )}
               </div>
             </SheetContent>
-
           </Sheet>
         </div>
       </div>
