@@ -123,6 +123,18 @@ const Header = () => {
                 >
                   Home
                 </a>
+
+                <a
+                  href="/becomehost"
+                  className={`text-lg ${
+                    location.pathname === "/becomehost"
+                      ? "text-green-600 font-semibold"
+                      : "text-gray-800 dark:text-gray-100"
+                  }`}
+                >
+                  Become a Host
+                </a>
+
                 <a
                   href="/about"
                   className={`text-lg ${
@@ -133,16 +145,7 @@ const Header = () => {
                 >
                   About
                 </a>
-                <a
-                  href="/contact"
-                  className={`text-lg ${
-                    location.pathname === "/contact"
-                      ? "text-green-600 font-semibold"
-                      : "text-gray-800 dark:text-gray-100"
-                  }`}
-                >
-                  Contact
-                </a>
+                
 
                 {/* ✅ Sign In Button inside Sheet */}
                 {user ? (
