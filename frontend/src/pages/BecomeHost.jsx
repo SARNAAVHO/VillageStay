@@ -14,30 +14,31 @@ function BecomeHost() {
   const [isHost, setIsHost] = useState(false);
 
   useEffect(() => {
-    const checkOrPromoteUser = async () => {
-      if (!user) return;
+  const checkOrPromoteUser = async () => {
+    if (!user) return;
 
-      try {
-        const dbUser = await getUserById(user.id);
-        if (dbUser?.is_host) {
-          setIsHost(true);
-        } else {
-          await promoteUserToHost(user.id, user.fullName || "Unknown", user.primaryEmailAddress?.emailAddress);
-          setIsHost(true);
-        }
-      } catch (err) {
-        console.error("Failed to check or promote user:", err);
-      } finally {
-        setLoading(false);
+    try {
+      // 🔁 Promote first (if not in DB, this will insert)
+      await promoteUserToHost(user.id, user.fullName || "Unknown", user.primaryEmailAddress?.emailAddress);
+
+      // ✅ Now safe to fetch user info
+      const dbUser = await getUserById(user.id);
+      if (dbUser?.is_host) {
+        setIsHost(true);
       }
-    };
-
-    if (isSignedIn) {
-      checkOrPromoteUser();
-    } else {
+    } catch (err) {
+      console.error("Failed to promote or fetch user:", err);
+    } finally {
       setLoading(false);
     }
-  }, [user, isSignedIn]);
+  };
+
+  if (isSignedIn) {
+    checkOrPromoteUser();
+  } else {
+    setLoading(false);
+  }
+}, [user, isSignedIn]);
 
   if (loading) {
     return (

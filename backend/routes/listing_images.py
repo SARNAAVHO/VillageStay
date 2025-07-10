@@ -1,7 +1,11 @@
 from flask import Blueprint, request, jsonify
 from sql_connection import get_sql_connection
+import os
+import dropbox
+from werkzeug.utils import secure_filename
 
 images_bp = Blueprint('images', __name__, url_prefix='/images')
+DROPBOX_ACCESS_TOKEN = os.getenv('DROPBOX_ACCESS_TOKEN')
 
 @images_bp.route('/<int:listing_id>', methods=['GET'])
 def get_images_for_listing(listing_id):
@@ -20,29 +24,47 @@ def get_images_for_listing(listing_id):
 
 @images_bp.route('/', methods=['POST'])
 def upload_image():
-    data = request.json
+    # Get form data and file
+    listing_id = request.form['listing_id']
+    user_id = request.form['user_id']
+    alt_text = request.form.get('alt_text', '')
+    position = request.form.get('position', 1)
+    file = request.files['image']
+    
+    filename = secure_filename(file.filename)
+    
     conn = get_sql_connection()
     cursor = conn.cursor()
 
-    # Confirm user is host for the listing
+    # Host verification
     cursor.execute("""
         SELECT u.is_host
         FROM listings l
         JOIN users u ON l.host_id = u.id
         WHERE l.id = %s AND u.id = %s
-    """, (data['listing_id'], data['user_id']))
+    """, (listing_id, user_id))
     result = cursor.fetchone()
+    
     if not result or not result[0]:
-        return jsonify({'error': 'Only hosts can upload images to their listings'}), 403
+        return jsonify({'error': 'Only hosts can upload images'}), 403
 
-    # Upload image
+    # Upload to Dropbox
+    dbx = dropbox.Dropbox(DROPBOX_ACCESS_TOKEN)
+    dropbox_path = f"/listings/{listing_id}_{filename}"
+    dbx.files_upload(file.read(), dropbox_path, mode=dropbox.files.WriteMode.overwrite)
+    shared_link = dbx.sharing_create_shared_link_with_settings(dropbox_path)
+    url = shared_link.url.replace("?dl=0", "?raw=1")
+
+    # Save to database
     cursor.execute("""
-        INSERT INTO listing_images (listing_id, url, alt_text, position)
-        VALUES (%s, %s, %s, %s)
-    """, (
-        data['listing_id'], data['url'], data.get('alt_text', ''), data.get('position', 1)
-    ))
+        INSERT INTO listing_images (
+            listing_id, 
+            url, 
+            alt_text, 
+            position
+        ) VALUES (%s, %s, %s, %s)
+    """, (listing_id, url, alt_text, position))
+    
     conn.commit()
     cursor.close()
-    return jsonify({'message': 'Image uploaded'}), 201
-
+    return jsonify({'message': 'Image uploaded successfully'}), 201

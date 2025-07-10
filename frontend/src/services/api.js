@@ -7,9 +7,15 @@ const API_BASE = "http://localhost:5000"; // Update if different (e.g., Vercel/R
 //
 
 export const getUserById = async (id) => {
-  const res = await API.get(`/users/${id}`);
+  const res = await axios.get(`${API_BASE}/users/${id}`);
   return res.data;
 };
+
+export const getUserByClerkId = async (clerkId) => {
+  return await axios.get(`${API_BASE}/users/by-clerk/${clerkId}`)
+    .then(res => res.data);
+};
+
 
 export const fetchAllListings = async () => {
   const res = await axios.get(`${API_BASE}/listings/`);
@@ -21,11 +27,8 @@ export const fetchAllListings = async () => {
 //   return res.data;
 // };
 
-export const createListing = async (formData) => {
-  const res = await axios.post(`${API_BASE}/listings/`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-  return res.data;
+export const createListing = (data) => {
+  return axios.post(`${API_BASE}/listings/`, data);
 };
 
 export const promoteUserToHost = async (id, name, email) => {
@@ -37,9 +40,14 @@ export const promoteUserToHost = async (id, name, email) => {
 //
 // 📍 Locations
 //
+// export const fetchAllLocations = async () => {
+//   const res = await axios.get(`${API_BASE}/locations/`);
+//   return res.data;
+// };
+
 export const fetchAllLocations = async () => {
-  const res = await axios.get(`${API_BASE}/locations/`);
-  return res.data;
+  return await axios.get(`${API_BASE}/locations/`)
+    .then(res => res.data);
 };
 
 export const createLocation = async (locationData) => {
@@ -55,9 +63,10 @@ export const fetchImagesForListing = async (listingId) => {
   return res.data;
 };
 
-export const uploadImageForListing = async (imageData) => {
-  const res = await axios.post(`${API_BASE}/images/`, imageData);
-  return res.data;
+export const uploadImageForListing = (formData) => {
+  return axios.post(`${API_BASE}/images/`, formData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  });
 };
 
 //

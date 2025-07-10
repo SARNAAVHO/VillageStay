@@ -31,20 +31,38 @@ def create_listing():
     conn = get_sql_connection()
     cursor = conn.cursor()
 
-    # Check if user is a host
+    # Step 1: Verify host status using internal numeric ID
     cursor.execute("SELECT is_host FROM users WHERE id = %s", (data['host_id'],))
     result = cursor.fetchone()
-    if not result or not result[0]:
+    
+    if not result:
+        return jsonify({'error': 'User not found'}), 404
+    
+    is_host = result[0]
+    if not is_host:
         return jsonify({'error': 'Only hosts can create listings'}), 403
 
-    # Create listing
+    # Step 2: Create listing
     cursor.execute("""
-        INSERT INTO listings (host_id, location_id, title, description, max_guests, base_price)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO listings (
+            host_id, 
+            location_id, 
+            title, 
+            description, 
+            max_guests, 
+            base_price
+        ) VALUES (%s, %s, %s, %s, %s, %s)
+        RETURNING id
     """, (
-        data['host_id'], data['location_id'], data['title'], data['description'],
-        data.get('max_guests', 4), data.get('base_price', None)
+        data['host_id'],
+        data['location_id'],
+        data['title'],
+        data['description'],
+        data.get('max_guests', 4),
+        data.get('base_price')
     ))
+    
+    listing_id = cursor.fetchone()[0]
     conn.commit()
     cursor.close()
-    return jsonify({'message': 'Listing created'}), 201
+    return jsonify({'message': 'Listing created', 'listing_id': listing_id}), 201

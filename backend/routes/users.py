@@ -53,4 +53,47 @@ def promote_user_to_host():
         print("❌ Error in /users/promote:", e)
         return jsonify({"error": str(e)}), 500
 
+@users_bp.route('/<user_id>', methods=['GET'])
+def get_user_by_id(user_id):
+    try:
+        conn = get_sql_connection()
+        cursor = conn.cursor()
 
+        # Look up user by Clerk's `user_id` (not numeric `id`)
+        cursor.execute("""
+            SELECT id, full_name, email, user_id, phone, is_host, created_at
+            FROM users
+            WHERE user_id = %s
+        """, (user_id,))
+        result = cursor.fetchone()
+        cursor.close()
+
+        if result:
+            return jsonify({
+                "id": result[0],
+                "full_name": result[1],
+                "email": result[2],
+                "user_id": result[3],
+                "phone": result[4],
+                "is_host": result[5],
+                "created_at": result[6].isoformat()
+            })
+        else:
+            return jsonify({"error": "User not found"}), 404
+    except Exception as e:
+        print("❌ Error in GET /users/<user_id>:", e)
+        return jsonify({"error": str(e)}), 500
+
+
+@users_bp.route('/by-clerk/<string:clerk_id>', methods=['GET'])
+def get_user_by_clerk_id(clerk_id):
+    conn = get_sql_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM users WHERE user_id = %s", (clerk_id,))
+    result = cursor.fetchone()
+    cursor.close()
+
+    if result:
+        return jsonify({'id': result[0]})
+    else:
+        return jsonify({'error': 'User not found'}), 404

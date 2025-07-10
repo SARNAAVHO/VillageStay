@@ -44,3 +44,23 @@ def list_locations():
             'country': r[4]
         } for r in rows
     ])
+
+@locations_bp.route('/find', methods=['GET'])
+def find_location():
+    village = request.args.get('village')
+    district = request.args.get('district')
+    state = request.args.get('state')
+
+    conn = get_sql_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT id FROM locations
+        WHERE village = %s AND district = %s AND state = %s
+    """, (village, district, state))
+    result = cursor.fetchone()
+    cursor.close()
+
+    if result:
+        return jsonify({'location_id': result[0]})
+    else:
+        return jsonify({'error': 'Location not found'}), 404
